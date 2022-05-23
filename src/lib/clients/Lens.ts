@@ -1,6 +1,7 @@
 import { chunk } from '../utils'
 import { BigNumber } from 'ethers'
 import { API_URL } from '../consts'
+import { DocumentNode } from 'graphql'
 import ALL_USERS_QUERY from '@/queries/all-users'
 import USER_COUNT_QUERY from '@/queries/user-count'
 import { ApolloClient, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
@@ -42,7 +43,7 @@ class Lens {
 		return totalProfiles
 	}
 
-	async getProfiles(): Promise<LensProfile[]> {
+	async getProfiles() {
 		const profileIds = this.#buildProfileIds(await this.getProfileCount())
 
 		return Promise.all(
