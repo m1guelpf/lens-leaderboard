@@ -1,28 +1,11 @@
 import { chunk } from '../utils'
 import { BigNumber } from 'ethers'
 import { API_URL } from '../consts'
-import { DocumentNode } from 'graphql'
+import { LensProfile } from '@/types/lens'
 import ALL_USERS_QUERY from '@/queries/all-users'
 import USER_COUNT_QUERY from '@/queries/user-count'
 import { RetryLink } from '@apollo/client/link/retry'
 import { ApolloClient, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
-
-export type LensProfile = {
-	name: string
-	handle: string
-	picture: {
-		original?: {
-			url: string
-			mimeType: string
-		}
-	}
-	stats: {
-		totalPosts: number
-		totalFollowers: number
-		totalFollowing: number
-		totalCollects: number
-	}
-}
 
 class Lens {
 	#apollo: ApolloClient<NormalizedCacheObject>
@@ -46,7 +29,7 @@ class Lens {
 		return totalProfiles
 	}
 
-	async getProfiles() {
+	async getProfiles(): Promise<LensProfile[]> {
 		const profileIds = this.#buildProfileIds(await this.getProfileCount())
 
 		return Promise.all(
@@ -65,7 +48,7 @@ class Lens {
 	#buildProfileIds(totalProfiles: number): Array<string[]> {
 		return chunk<string>(
 			[...new Array(totalProfiles).keys()].map(i => BigNumber.from(i).toHexString()),
-			40
+			48
 		)
 	}
 }

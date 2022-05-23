@@ -1,21 +1,22 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import bgImage from '@images/bg.png'
+import Lens from '@/lib/clients/Lens'
 import { GetStaticProps } from 'next'
 import cardImg from '@images/card.jpg'
 import Avatar from '@/components/Avatar'
+import { LensProfile } from '@/types/lens'
+import { Filter, Profile } from '@/types/ui'
 import { FC, useMemo, useState } from 'react'
 import { format as timeago } from 'timeago.js'
-import Lens, { LensProfile } from '@/lib/clients/Lens'
 
 const PAGE_LENGTH = 10
 
-type Filter = { label: string; item: (LensProfile) => number }
 const filters: Record<'followers' | 'posts' | 'collects' | 'following', Filter> = {
-	followers: { label: 'Followers', item: (profile: LensProfile) => profile.stats.totalFollowers },
-	following: { label: 'Following', item: (profile: LensProfile) => profile.stats.totalFollowing },
-	posts: { label: 'Posts', item: (profile: LensProfile) => profile.stats.totalPosts },
-	collects: { label: 'Collects', item: (profile: LensProfile) => profile.stats.totalCollects },
+	followers: { label: 'Followers', item: (profile: Profile) => profile.followers },
+	following: { label: 'Following', item: (profile: Profile) => profile.following },
+	posts: { label: 'Posts', item: (profile: Profile) => profile.posts },
+	collects: { label: 'Collects', item: (profile: Profile) => profile.collects },
 }
 
 const meta = {
@@ -24,7 +25,7 @@ const meta = {
 	image: `https://lensrank.m1guelpf.me${cardImg.src}`,
 }
 
-const Home: FC<{ profiles: LensProfile[]; last_updated: number }> = ({ profiles, last_updated }) => {
+const Home: FC<{ profiles: Profile[]; last_updated: number }> = ({ profiles, last_updated }) => {
 	const [filterBy, setFilter] = useState<Filter>(filters.followers)
 	const [page, setPage] = useState<number>(0)
 
@@ -157,7 +158,15 @@ const Home: FC<{ profiles: LensProfile[]; last_updated: number }> = ({ profiles,
 export const getStaticProps: GetStaticProps = async () => {
 	return {
 		props: {
-			profiles: await Lens.getProfiles(),
+			profiles: (await Lens.getProfiles()).map((profile: LensProfile) => ({
+				name: profile.name,
+				handle: profile.handle,
+				avatar: profile.picture?.original?.url ?? null,
+				followers: profile.stats.totalFollowers,
+				following: profile.stats.totalFollowing,
+				posts: profile.stats.totalPosts,
+				collects: profile.stats.totalCollects,
+			})),
 			last_updated: Date.now(),
 		},
 		revalidate: 3600,
