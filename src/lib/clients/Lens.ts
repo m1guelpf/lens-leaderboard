@@ -4,6 +4,7 @@ import { API_URL } from '../consts'
 import { DocumentNode } from 'graphql'
 import ALL_USERS_QUERY from '@/queries/all-users'
 import USER_COUNT_QUERY from '@/queries/user-count'
+import { RetryLink } from '@apollo/client/link/retry'
 import { ApolloClient, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
 
 export type LensProfile = {
@@ -28,7 +29,9 @@ class Lens {
 
 	constructor() {
 		this.#apollo = new ApolloClient({
-			link: new HttpLink({ uri: API_URL, fetch }),
+			link: new RetryLink({ delay: { max: 3000 }, attempts: { max: 3 } }).concat(
+				new HttpLink({ uri: API_URL, fetch })
+			),
 			cache: new InMemoryCache(),
 		})
 	}
@@ -62,7 +65,7 @@ class Lens {
 	#buildProfileIds(totalProfiles: number): Array<string[]> {
 		return chunk<string>(
 			[...new Array(totalProfiles).keys()].map(i => BigNumber.from(i).toHexString()),
-			45
+			40
 		)
 	}
 }
