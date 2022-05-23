@@ -3,8 +3,9 @@ import Image from 'next/image'
 import bgImage from '@images/bg.png'
 import { GetStaticProps } from 'next'
 import cardImg from '@images/card.jpg'
-import { format as timeago } from 'timeago.js'
+import Avatar from '@/components/Avatar'
 import { FC, useMemo, useState } from 'react'
+import { format as timeago } from 'timeago.js'
 import Lens, { LensProfile } from '@/lib/clients/Lens'
 
 const PAGE_LENGTH = 10
@@ -31,6 +32,11 @@ const Home: FC<{ profiles: LensProfile[]; last_updated: number }> = ({ profiles,
 		() => profiles.sort((a, b) => filterBy.item(b) - filterBy.item(a)),
 		[profiles, filterBy]
 	)
+
+	const changeFilter = (filter: Filter) => {
+		setFilter(filter)
+		setPage(0)
+	}
 
 	return (
 		<>
@@ -69,7 +75,7 @@ const Home: FC<{ profiles: LensProfile[]; last_updated: number }> = ({ profiles,
 							className={`font-medium transition ${
 								filterBy.label == filter.label ? '' : 'text-black/40'
 							}`}
-							onClick={() => setFilter(filter)}
+							onClick={() => changeFilter(filter)}
 						>
 							{filter.label}
 						</button>
@@ -84,20 +90,19 @@ const Home: FC<{ profiles: LensProfile[]; last_updated: number }> = ({ profiles,
 									key={i}
 									className="flex items-center justify-between shadow rounded-xl py-2 px-4 relative bg-white/70 backdrop-filter backdrop-blur-sm backdrop-saturate-150"
 								>
-									<div className="absolute -top-2 -right-2 bg-white text-xl rounded-full w-8 h-8 flex items-center justify-center shadow">
+									<div
+										className={`absolute -top-2 -right-2 bg-white text-xl rounded-full w-8 h-8 flex items-center justify-center shadow ${
+											PAGE_LENGTH * page + i + 1 >= 1000
+												? 'text-xs'
+												: PAGE_LENGTH * page + i + 1 >= 100
+												? 'text-base'
+												: ''
+										}`}
+									>
 										{PAGE_LENGTH * page + i + 1}
 									</div>
 									<div className="flex items-center">
-										<Image
-											src={
-												profile.picture?.original?.url ??
-												`https://avatar.tobi.sh/${profile.handle}.png`
-											}
-											alt={profile.name}
-											width={40}
-											height={40}
-											className="rounded-full"
-										/>
+										<Avatar profile={profile} />
 										<div className="ml-4">
 											<p className="text-lg">{profile.name ?? profile.handle}</p>
 											<div className="flex items-center">
