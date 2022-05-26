@@ -22,7 +22,7 @@ const filters: Record<'followers' | 'posts' | 'collects' | 'following', Filter> 
 const meta = {
 	title: `Lens Leaderboard: Most followed, active, collected & shared profiles`,
 	description: `Open protocols offer new levels of transparency. This leaderboard uses 100% public data to rank notable profiles on the Lens Protocol.`,
-	image: `https://lensrank.m1guelpf.me${cardImg.src}`,
+	image: `https://leaderboard.withlens.app${cardImg.src}`,
 }
 
 const Home: FC<{ profiles: Profile[]; last_updated: number }> = ({ profiles, last_updated }) => {
@@ -47,13 +47,13 @@ const Home: FC<{ profiles: Profile[]; last_updated: number }> = ({ profiles, las
 				<meta name="description" content={meta.description} />
 
 				<meta property="og:type" content="website" />
-				<meta property="og:url" content="https://lensrank.m1guelpf.me" />
+				<meta property="og:url" content="https://leaderboard.withlens.app" />
 				<meta property="og:title" content={meta.title} />
 				<meta property="og:description" content={meta.description} />
 				<meta property="og:image" content={meta.image} />
 
 				<meta property="twitter:card" content="summary_large_image" />
-				<meta property="twitter:url" content="https://lensrank.m1guelpf.me" />
+				<meta property="twitter:url" content="https://leaderboard.withlens.app" />
 				<meta property="twitter:title" content={meta.title} />
 				<meta property="twitter:description" content={meta.description} />
 				<meta property="twitter:image" content={meta.image} />
