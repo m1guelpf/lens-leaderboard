@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 
 const ALL_USERS_QUERY = gql`
 	query ($profileIds: [ProfileId!]!) {
-		profiles(request: { profileIds: $profileIds }) {
+		profiles(request: { profileIds: $profileIds, limit: 50 }) {
 			items {
 				name
 				handle

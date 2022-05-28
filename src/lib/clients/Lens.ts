@@ -48,7 +48,7 @@ class Lens {
 	#buildProfileIds(totalProfiles: number): Array<string[]> {
 		return chunk<string>(
 			[...new Array(totalProfiles).keys()].map(i => BigNumber.from(i).toHexString()),
-			48
+			50
 		)
 	}
 }
