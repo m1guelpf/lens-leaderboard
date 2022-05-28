@@ -161,7 +161,7 @@ export const getStaticProps: GetStaticProps = async () => {
 			profiles: (await Lens.getProfiles()).map((profile: LensProfile) => ({
 				name: profile.name,
 				handle: profile.handle,
-				avatar: profile.picture?.original?.url ?? null,
+				avatar: profile.picture?.original?.url ?? profile.picture?.uri ?? null,
 				followers: profile.stats.totalFollowers,
 				following: profile.stats.totalFollowing,
 				posts: profile.stats.totalPosts,

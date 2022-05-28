@@ -6,6 +6,7 @@ export type LensProfile = {
 			url: string
 			mimeType: string
 		}
+		uri?: string
 	}
 	stats: {
 		totalPosts: number

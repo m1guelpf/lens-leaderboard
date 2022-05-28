@@ -13,6 +13,9 @@ const ALL_USERS_QUERY = gql`
 							mimeType
 						}
 					}
+					... on NftImage {
+						uri
+					}
 				}
 				stats {
 					totalPosts
