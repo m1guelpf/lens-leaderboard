@@ -2,12 +2,13 @@ import Head from 'next/head'
 import Image from 'next/image'
 import bgImage from '@images/bg.png'
 import cardImg from '@images/card.jpg'
-import Avatar from '@/components/Avatar'
+import Profile from '@/components/Profile'
 import { LensProfile } from '@/types/lens'
 import { Filter } from '@/types/ui'
 import { FC, useState } from 'react'
 import { useQuery } from '@apollo/client'
 import EXPLORE_PROFILES from '@/queries/explore-profiles'
+import ProfileLoadingSkeleton from '@/components/ProfileLoadingSkeleton'
 
 const PAGE_LENGTH = 10
 
@@ -90,62 +91,34 @@ const Home: FC = () => {
 					))}
 				</div>
 				<div className="max-w-5xl mx-auto w-full py-2 px-6">
-					{loading && (
-						<div className="flex items-center justify-center pt-12">
-							<p className="text-black/60">Loading...</p>
-						</div>
-					)}
 					<div className="grid md:grid-cols-2 gap-4 mb-4">
+						{loading && [...Array(PAGE_LENGTH)].map((_, i) => <ProfileLoadingSkeleton key={i} />)}
 						{profiles &&
 							profiles.map((profile, i) => (
-								<div
-									key={i}
-									className="flex items-center justify-between shadow rounded-xl py-2 px-4 relative bg-white/70 backdrop-filter backdrop-blur-sm backdrop-saturate-150"
-								>
-									<div
-										className={`absolute -top-2 -right-2 bg-white text-xl rounded-full w-8 h-8 flex items-center justify-center shadow ${
-											page * PAGE_LENGTH + i + 1 >= 1000
-												? 'text-xs'
-												: page * PAGE_LENGTH + i + 1 >= 100
-												? 'text-base'
-												: ''
-										}`}
-									>
-										{page * PAGE_LENGTH + i + 1}
-									</div>
-									<div className="flex items-center">
-										<Avatar profile={profile} />
-										<div className="ml-4">
-											<p className="text-lg">{profile.name ?? profile.handle}</p>
-											<div className="flex items-center">
-												<a
-													href={`https://lenster.xyz/u/${profile.handle}`}
-													className="text-sm text-gray-600 -mt-1 block"
-												>
-													@{profile.handle}
-												</a>
-											</div>
-										</div>
-									</div>
-									<div className="mr-4">
-										<p className="text-lg text-right">{filterBy.item(profile)}</p>
-										<p className="lowercase text-black/40 text-sm -mt-1">{filterBy.label}</p>
-									</div>
-								</div>
+								<Profile
+									key={`${i}`}
+									profile={profile}
+									ranking={page * PAGE_LENGTH + i + 1}
+									filter={filterBy}
+								/>
 							))}
 					</div>
-					{profiles && (
-						<div className="flex items-center justify-end space-x-4 text-white">
-							{page != 0 && (
-								<button className="text-sm" onClick={() => setPage(page - 1)}>
-									&larr; Prev Page
+					<div className="flex items-center justify-end space-x-4 text-white">
+						{loading ? (
+							<p className="text-sm">Loading profiles ...</p>
+						) : (
+							<>
+								{page != 0 && (
+									<button className="text-sm" onClick={() => setPage(page - 1)}>
+										&larr; Prev Page
+									</button>
+								)}
+								<button className="text-sm" onClick={() => setPage(page + 1)}>
+									Next Page &rarr;
 								</button>
-							)}
-							<button className="text-sm" onClick={() => setPage(page + 1)}>
-								Next Page &rarr;
-							</button>
-						</div>
-					)}
+							</>
+						)}
+					</div>
 				</div>
 				<p className="md:absolute bottom-4 md:bottom-6 inset-x-0 text-center text-white/90 pt-4 pb-6 md:py-0">
 					Built by{' '}

@@ -1,7 +1,7 @@
 export type LensProfile = {
 	name: string
 	handle: string
-	picture: {
+	picture?: {
 		original?: {
 			url: string
 			mimeType: string
