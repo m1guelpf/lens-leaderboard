@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 
-const ALL_USERS_QUERY = gql`
-	query ($profileIds: [ProfileId!]!) {
-		profiles(request: { profileIds: $profileIds, limit: 50 }) {
+const EXPLORE_PROFILES = gql`
+	query ExploreProfiles($sortCriteria: ProfileSortCriteria!, $cursor: Cursor) {
+		exploreProfiles(request: { sortCriteria: $sortCriteria, limit: 10, cursor: $cursor }) {
 			items {
 				name
 				handle
@@ -20,12 +20,12 @@ const ALL_USERS_QUERY = gql`
 				stats {
 					totalPosts
 					totalFollowers
-					totalFollowing
 					totalCollects
+					totalPublications
 				}
 			}
 		}
 	}
 `
 
-export default ALL_USERS_QUERY
+export default EXPLORE_PROFILES

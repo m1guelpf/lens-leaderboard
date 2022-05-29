@@ -1,22 +1,29 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import bgImage from '@images/bg.png'
-import Lens from '@/lib/clients/Lens'
-import { GetStaticProps } from 'next'
 import cardImg from '@images/card.jpg'
 import Avatar from '@/components/Avatar'
 import { LensProfile } from '@/types/lens'
-import { Filter, Profile } from '@/types/ui'
-import { FC, useMemo, useState } from 'react'
-import { format as timeago } from 'timeago.js'
+import { Filter } from '@/types/ui'
+import { FC, useState } from 'react'
+import { useQuery } from '@apollo/client'
+import EXPLORE_PROFILES from '@/queries/explore-profiles'
 
 const PAGE_LENGTH = 10
 
-const filters: Record<'followers' | 'posts' | 'collects' | 'following', Filter> = {
-	followers: { label: 'Followers', item: (profile: Profile) => profile.followers },
-	following: { label: 'Following', item: (profile: Profile) => profile.following },
-	posts: { label: 'Posts', item: (profile: Profile) => profile.posts },
-	collects: { label: 'Collects', item: (profile: Profile) => profile.collects },
+const filters: Record<'followers' | 'posts' | 'collects' | 'active', Filter> = {
+	followers: {
+		label: 'Followers',
+		key: 'MOST_FOLLOWERS',
+		item: (profile: LensProfile) => profile.stats.totalFollowers,
+	},
+	posts: { label: 'Posts', key: 'MOST_POSTS', item: (profile: LensProfile) => profile.stats.totalPosts },
+	active: {
+		label: 'Active',
+		key: 'MOST_PUBLICATION',
+		item: (profile: LensProfile) => profile.stats.totalPublications,
+	},
+	collects: { label: 'Collects', key: 'MOST_COLLECTS', item: (profile: LensProfile) => profile.stats.totalCollects },
 }
 
 const meta = {
@@ -25,19 +32,19 @@ const meta = {
 	image: `https://leaderboard.withlens.app${cardImg.src}`,
 }
 
-const Home: FC<{ profiles: Profile[]; last_updated: number }> = ({ profiles, last_updated }) => {
+const Home: FC = () => {
 	const [filterBy, setFilter] = useState<Filter>(filters.followers)
 	const [page, setPage] = useState<number>(0)
-
-	const orderedProfiles = useMemo(
-		() => profiles.sort((a, b) => filterBy.item(b) - filterBy.item(a)),
-		[profiles, filterBy]
-	)
+	const { data, loading } = useQuery(EXPLORE_PROFILES, {
+		variables: { sortCriteria: filterBy.key, cursor: JSON.stringify({ offset: page * PAGE_LENGTH }) },
+	})
 
 	const changeFilter = (filter: Filter) => {
 		setFilter(filter)
 		setPage(0)
 	}
+
+	const profiles = data?.exploreProfiles?.items
 
 	return (
 		<>
@@ -83,24 +90,28 @@ const Home: FC<{ profiles: Profile[]; last_updated: number }> = ({ profiles, las
 					))}
 				</div>
 				<div className="max-w-5xl mx-auto w-full py-2 px-6">
+					{loading && (
+						<div className="flex items-center justify-center pt-12">
+							<p className="text-black/60">Loading...</p>
+						</div>
+					)}
 					<div className="grid md:grid-cols-2 gap-4 mb-4">
-						{orderedProfiles
-							.slice(PAGE_LENGTH * page, PAGE_LENGTH * page + PAGE_LENGTH)
-							.map((profile, i) => (
+						{profiles &&
+							profiles.map((profile, i) => (
 								<div
 									key={i}
 									className="flex items-center justify-between shadow rounded-xl py-2 px-4 relative bg-white/70 backdrop-filter backdrop-blur-sm backdrop-saturate-150"
 								>
 									<div
 										className={`absolute -top-2 -right-2 bg-white text-xl rounded-full w-8 h-8 flex items-center justify-center shadow ${
-											PAGE_LENGTH * page + i + 1 >= 1000
+											page * PAGE_LENGTH + i + 1 >= 1000
 												? 'text-xs'
-												: PAGE_LENGTH * page + i + 1 >= 100
+												: page * PAGE_LENGTH + i + 1 >= 100
 												? 'text-base'
 												: ''
 										}`}
 									>
-										{PAGE_LENGTH * page + i + 1}
+										{page * PAGE_LENGTH + i + 1}
 									</div>
 									<div className="flex items-center">
 										<Avatar profile={profile} />
@@ -123,21 +134,18 @@ const Home: FC<{ profiles: Profile[]; last_updated: number }> = ({ profiles, las
 								</div>
 							))}
 					</div>
-					<div className="flex items-center justify-end space-x-4 text-white">
-						{page > 0 && (
-							<button className="text-sm" onClick={() => setPage(page - 1)}>
-								&larr; Prev Page
-							</button>
-						)}
-						{page < Math.floor(orderedProfiles.length / PAGE_LENGTH) && (
+					{profiles && (
+						<div className="flex items-center justify-end space-x-4 text-white">
+							{page != 0 && (
+								<button className="text-sm" onClick={() => setPage(page - 1)}>
+									&larr; Prev Page
+								</button>
+							)}
 							<button className="text-sm" onClick={() => setPage(page + 1)}>
 								Next Page &rarr;
 							</button>
-						)}
-					</div>
-					<div className="flex items-center justify-center text-center space-x-4 text-white/80 mt-4">
-						(last updated {timeago(last_updated)}, updates every hour)
-					</div>
+						</div>
+					)}
 				</div>
 				<p className="md:absolute bottom-4 md:bottom-6 inset-x-0 text-center text-white/90 pt-4 pb-6 md:py-0">
 					Built by{' '}
@@ -153,24 +161,6 @@ const Home: FC<{ profiles: Profile[]; last_updated: number }> = ({ profiles, las
 			</div>
 		</>
 	)
-}
-
-export const getStaticProps: GetStaticProps = async () => {
-	return {
-		props: {
-			profiles: (await Lens.getProfiles()).map((profile: LensProfile) => ({
-				name: profile.name,
-				handle: profile.handle,
-				avatar: profile.picture?.original?.url ?? profile.picture?.uri ?? null,
-				followers: profile.stats.totalFollowers,
-				following: profile.stats.totalFollowing,
-				posts: profile.stats.totalPosts,
-				collects: profile.stats.totalCollects,
-			})),
-			last_updated: Date.now(),
-		},
-		revalidate: 3600,
-	}
 }
 
 export default Home

@@ -13,5 +13,6 @@ export type LensProfile = {
 		totalFollowers: number
 		totalFollowing: number
 		totalCollects: number
+		totalPublications: number
 	}
 }
