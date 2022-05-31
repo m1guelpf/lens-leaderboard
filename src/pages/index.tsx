@@ -151,7 +151,7 @@ const Home: FC = () => {
 					Built by{' '}
 					<a
 						className="font-semibold text-white"
-						href="https://lenster.xyz/u/m1guelpf.lens"
+						href="https://open.withlens.app/profile/m1guelpf.lens"
 						target="_blank"
 						rel="noreferrer"
 					>
