@@ -119,7 +119,7 @@ const Home: FC = () => {
 											<p className="text-lg">{profile.name ?? profile.handle}</p>
 											<div className="flex items-center">
 												<a
-													href={`https://lenster.xyz/u/${profile.handle}`}
+													href={`https://open.withlens.app/profile/${profile.handle}`}
 													className="text-sm text-gray-600 -mt-1 block"
 												>
 													@{profile.handle}
