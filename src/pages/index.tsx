@@ -2,12 +2,12 @@ import Head from 'next/head'
 import Image from 'next/image'
 import bgImage from '@images/bg.png'
 import cardImg from '@images/card.jpg'
-import Avatar from '@/components/Avatar'
 import { LensProfile } from '@/types/lens'
 import { Filter } from '@/types/ui'
-import { FC, useState } from 'react'
+import { FC, useMemo, useState } from 'react'
 import { useQuery } from '@apollo/client'
 import EXPLORE_PROFILES from '@/queries/explore-profiles'
+import ProfileCard from '@/components/ProfileCard'
 
 const PAGE_LENGTH = 10
 
@@ -35,7 +35,7 @@ const meta = {
 const Home: FC = () => {
 	const [filterBy, setFilter] = useState<Filter>(filters.followers)
 	const [page, setPage] = useState<number>(0)
-	const { data, loading } = useQuery(EXPLORE_PROFILES, {
+	const { data, loading, error } = useQuery(EXPLORE_PROFILES, {
 		variables: { sortCriteria: filterBy.key, cursor: JSON.stringify({ offset: page * PAGE_LENGTH }) },
 	})
 
@@ -44,7 +44,11 @@ const Home: FC = () => {
 		setPage(0)
 	}
 
-	const profiles = data?.exploreProfiles?.items
+	const profiles = useMemo<LensProfile[] | null>(() => {
+		if (loading) return [...new Array(10).keys()].map(() => null)
+
+		return data?.exploreProfiles?.items
+	}, [loading, data?.exploreProfiles?.items])
 
 	return (
 		<>
@@ -90,48 +94,20 @@ const Home: FC = () => {
 					))}
 				</div>
 				<div className="max-w-5xl mx-auto w-full py-2 px-6">
-					{loading && (
+					{error && (
 						<div className="flex items-center justify-center pt-12">
-							<p className="text-black/60">Loading...</p>
+							<p className="text-black/60">{error.message}</p>
 						</div>
 					)}
 					<div className="grid md:grid-cols-2 gap-4 mb-4">
 						{profiles &&
 							profiles.map((profile, i) => (
-								<div
-									key={i}
-									className="flex items-center justify-between shadow rounded-xl py-2 px-4 relative bg-white/70 backdrop-filter backdrop-blur-sm backdrop-saturate-150"
-								>
-									<div
-										className={`absolute -top-2 -right-2 bg-white text-xl rounded-full w-8 h-8 flex items-center justify-center shadow ${
-											page * PAGE_LENGTH + i + 1 >= 1000
-												? 'text-xs'
-												: page * PAGE_LENGTH + i + 1 >= 100
-												? 'text-base'
-												: ''
-										}`}
-									>
-										{page * PAGE_LENGTH + i + 1}
-									</div>
-									<div className="flex items-center">
-										<Avatar profile={profile} />
-										<div className="ml-4">
-											<p className="text-lg">{profile.name ?? profile.handle}</p>
-											<div className="flex items-center">
-												<a
-													href={`https://open.withlens.app/profile/${profile.handle}`}
-													className="text-sm text-gray-600 -mt-1 block"
-												>
-													@{profile.handle}
-												</a>
-											</div>
-										</div>
-									</div>
-									<div className="mr-4">
-										<p className="text-lg text-right">{filterBy.item(profile)}</p>
-										<p className="lowercase text-black/40 text-sm -mt-1">{filterBy.label}</p>
-									</div>
-								</div>
+								<ProfileCard
+									profile={profile}
+									filter={filterBy}
+									key={profile?.handle ?? i}
+									i={page * PAGE_LENGTH + i + 1}
+								/>
 							))}
 					</div>
 					{profiles && (
