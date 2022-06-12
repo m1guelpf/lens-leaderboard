@@ -110,18 +110,22 @@ const Home: FC = () => {
 								/>
 							))}
 					</div>
-					{profiles && (
-						<div className="flex items-center justify-end space-x-4 text-white">
-							{page != 0 && (
-								<button className="text-sm" onClick={() => setPage(page - 1)}>
-									&larr; Prev Page
+					<div className="flex items-center justify-end space-x-4 text-white">
+						{loading ? (
+							<p className="text-sm">Loading profiles ...</p>
+						) : (
+							<>
+								{page != 0 && (
+									<button className="text-sm" onClick={() => setPage(page - 1)}>
+										&larr; Prev Page
+									</button>
+								)}
+								<button className="text-sm" onClick={() => setPage(page + 1)}>
+									Next Page &rarr;
 								</button>
-							)}
-							<button className="text-sm" onClick={() => setPage(page + 1)}>
-								Next Page &rarr;
-							</button>
-						</div>
-					)}
+							</>
+						)}
+					</div>
 				</div>
 				<p className="md:absolute bottom-4 md:bottom-6 inset-x-0 text-center text-white/90 pt-4 pb-6 md:py-0">
 					Built by{' '}
