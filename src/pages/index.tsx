@@ -2,13 +2,12 @@ import Head from 'next/head'
 import Image from 'next/image'
 import bgImage from '@images/bg.png'
 import cardImg from '@images/card.jpg'
-import Profile from '@/components/Profile'
 import { LensProfile } from '@/types/lens'
 import { Filter } from '@/types/ui'
-import { FC, useState } from 'react'
+import { FC, useMemo, useState } from 'react'
 import { useQuery } from '@apollo/client'
 import EXPLORE_PROFILES from '@/queries/explore-profiles'
-import ProfileLoadingSkeleton from '@/components/ProfileLoadingSkeleton'
+import ProfileCard from '@/components/ProfileCard'
 
 const PAGE_LENGTH = 10
 
@@ -36,7 +35,7 @@ const meta = {
 const Home: FC = () => {
 	const [filterBy, setFilter] = useState<Filter>(filters.followers)
 	const [page, setPage] = useState<number>(0)
-	const { data, loading } = useQuery(EXPLORE_PROFILES, {
+	const { data, loading, error } = useQuery(EXPLORE_PROFILES, {
 		variables: { sortCriteria: filterBy.key, cursor: JSON.stringify({ offset: page * PAGE_LENGTH }) },
 	})
 
@@ -45,7 +44,11 @@ const Home: FC = () => {
 		setPage(0)
 	}
 
-	const profiles = data?.exploreProfiles?.items
+	const profiles = useMemo<LensProfile[] | null>(() => {
+		if (loading) return [...new Array(10).keys()].map(() => null)
+
+		return data?.exploreProfiles?.items
+	}, [loading, data?.exploreProfiles?.items])
 
 	return (
 		<>
@@ -91,15 +94,20 @@ const Home: FC = () => {
 					))}
 				</div>
 				<div className="max-w-5xl mx-auto w-full py-2 px-6">
+					{error && (
+						<div className="flex items-center justify-center pt-12">
+							<p className="text-black/60">{error.message}</p>
+						</div>
+					)}
 					<div className="grid md:grid-cols-2 gap-4 mb-4">
 						{loading && [...Array(PAGE_LENGTH)].map((_, i) => <ProfileLoadingSkeleton key={i} />)}
 						{profiles &&
 							profiles.map((profile, i) => (
-								<Profile
-									key={`${i}`}
+								<ProfileCard
 									profile={profile}
-									ranking={page * PAGE_LENGTH + i + 1}
 									filter={filterBy}
+									key={profile?.handle ?? i}
+									i={page * PAGE_LENGTH + i + 1}
 								/>
 							))}
 					</div>
@@ -124,7 +132,7 @@ const Home: FC = () => {
 					Built by{' '}
 					<a
 						className="font-semibold text-white"
-						href="https://lenster.xyz/u/m1guelpf.lens"
+						href="https://open.withlens.app/profile/m1guelpf.lens"
 						target="_blank"
 						rel="noreferrer"
 					>
