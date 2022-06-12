@@ -100,7 +100,6 @@ const Home: FC = () => {
 						</div>
 					)}
 					<div className="grid md:grid-cols-2 gap-4 mb-4">
-						{loading && [...Array(PAGE_LENGTH)].map((_, i) => <ProfileLoadingSkeleton key={i} />)}
 						{profiles &&
 							profiles.map((profile, i) => (
 								<ProfileCard
