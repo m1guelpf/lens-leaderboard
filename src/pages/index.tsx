@@ -1,13 +1,13 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import { Filter } from '@/types/ui'
 import bgImage from '@images/bg.png'
 import cardImg from '@images/card.jpg'
-import { LensProfile } from '@/types/lens'
-import { Filter } from '@/types/ui'
-import { FC, useMemo, useState } from 'react'
 import { useQuery } from '@apollo/client'
-import EXPLORE_PROFILES from '@/queries/explore-profiles'
+import { LensProfile } from '@/types/lens'
+import { FC, useMemo, useState } from 'react'
 import ProfileCard from '@/components/ProfileCard'
+import EXPLORE_PROFILES from '@/queries/explore-profiles'
 
 const PAGE_LENGTH = 10
 

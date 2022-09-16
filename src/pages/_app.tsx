@@ -1,7 +1,7 @@
 import apollo from '@/lib/apollo'
 import 'tailwindcss/tailwind.css'
-import 'react-loading-skeleton/dist/skeleton.css'
 import { ApolloProvider } from '@apollo/client'
+import 'react-loading-skeleton/dist/skeleton.css'
 import { SkeletonTheme } from 'react-loading-skeleton'
 
 const App = ({ Component, pageProps }) => (

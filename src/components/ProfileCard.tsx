@@ -1,8 +1,8 @@
-import { LensProfile } from '@/types/lens'
-import { Filter } from '@/types/ui'
 import { FC } from 'react'
-import Skeleton from 'react-loading-skeleton'
 import Avatar from './Avatar'
+import { Filter } from '@/types/ui'
+import { LensProfile } from '@/types/lens'
+import Skeleton from 'react-loading-skeleton'
 
 const ProfileCard: FC<{ profile: LensProfile; i: number; filter: Filter }> = ({ profile, i, filter }) => {
 	return (

@@ -1,5 +1,6 @@
-import { FC, useMemo } from 'react'
 import Image from 'next/image'
+import { FC, useMemo } from 'react'
+import { normalizeUrl } from '@/lib/utils'
 import { LensProfile } from '@/types/lens'
 import Skeleton from 'react-loading-skeleton'
 
@@ -8,8 +9,8 @@ const Avatar: FC<{ profile: LensProfile; className?: string }> = ({ profile, cla
 		if (!profile) return
 		if (!profile?.picture) return `https://avatar.tobi.sh/${profile.handle}.png`
 
-		if (profile.picture?.uri) return profile.picture?.uri
-		return profile.picture.original.url
+		if (profile.picture?.uri) return normalizeUrl(profile.picture?.uri)
+		return normalizeUrl(profile.picture.original.url)
 	}, [profile])
 
 	return (

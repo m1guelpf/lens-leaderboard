@@ -3,7 +3,7 @@ const nextConfig = {
 	reactStrictMode: true,
 	images: {
 		dangerouslyAllowSVG: true,
-		domains: ['ipfs.infura.io', 'statics-polygon-lens.s3.eu-west-1.amazonaws.com', 'avatar.tobi.sh'],
+		remotePatterns: [{ protocol: 'https', hostname: '**' }],
 		contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 	},
 }
